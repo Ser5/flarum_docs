@@ -66,3 +66,28 @@ return [
     // Other extenders
 ];
 ```
+
+To access your service you should use [Laravel container](https://laravel.com/docs/11.x/container):
+
+```php
+use Illuminate\Container\Container;
+
+$container = Container::getInstance();
+/** @var CustomService */
+$customService = $container->get(CustomService::class);
+```
+
+If you want to use the service from `extend.php` — for example, in `Extend\ApiSerializer`, you should pass a callback there:
+
+```php
+use Flarum\Extend;
+use Flarum\Api\Serializer\ForumSerializer;
+
+return [
+    (new Extend\ServiceProvider())->register(CustomServiceProvider::class),
+
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attribute('customService',
+        fn(ForumSerializer $serializer, array $data) => $customService->foo($serializer, $data)
+    ),
+```
